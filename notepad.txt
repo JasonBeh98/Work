@@ -1,0 +1,71 @@
+
+#include "ESP8266WiFi.h"
+#include <SPI.h>
+#include <Wire.h>
+#include "MQ135.h"
+
+const int RSSI_MAX =-50;// define maximum strength of signal in dBm
+const int RSSI_MIN =-100;// define minimum strength of signal in dBm
+
+int count =0;
+boolean startF = false;
+
+void setup() {
+
+  Serial.begin(9600);
+  // Set WiFi to station mode and 
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();//disconnect from an AP if it was previously connected    
+
+}
+
+void loop() {
+
+    int n = WiFi.scanNetworks();
+      
+    for (int i = 0; i < n; ++i) 
+    {
+      if (WiFi.SSID(i)== "HUAWEI nova 4") 
+      {
+        startF = true;
+      }
+
+      if (startF == true)
+      {
+        MQ135 gasSensor = MQ135(A0);
+        float air_quality = gasSensor.getPPM();
+        Serial.print("Air Quality: ");  
+        Serial.print(air_quality);
+        Serial.println("  PPM");   
+        Serial.println();
+        Serial.print('\n');
+      }
+
+      if (WiFi.SSID(i)== "iPhone") 
+      {
+        startF = false;
+      }
+    }
+    
+}// loop end
+
+
+//
+//int dBmtoPercentage(int dBm)
+//{
+//  int quality;
+//    if(dBm <= RSSI_MIN)
+//    {
+//        quality = 0;
+//    }
+//    else if(dBm >= RSSI_MAX)
+//    {  
+//        quality = 100;
+//    }
+//    else
+//    {
+//        quality = 2 * (dBm + 100);
+//   }
+//
+//     return quality;
+//}
